@@ -416,10 +416,15 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
       mBuilder = new NotificationCompat.Builder(context);
     }
 
-    mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(fromHtml(extras.getString(TITLE)))
-        .setTicker(fromHtml(extras.getString(TITLE))).setContentIntent(contentIntent).setDeleteIntent(deleteIntent)
-        .setAutoCancel(true);
-
+    mBuilder
+        .setWhen(System.currentTimeMillis())
+        .setContentTitle(fromHtml(extras.getString(TITLE)))
+        .setTicker(fromHtml(extras.getString(TITLE)))
+        .setContentIntent(contentIntent)
+//        .setDeleteIntent(deleteIntent)
+//        .setAutoCancel(true);
+        ;
+    
     SharedPreferences prefs = context.getSharedPreferences(PushPlugin.COM_ADOBE_PHONEGAP_PUSH, Context.MODE_PRIVATE);
     String localIcon = prefs.getString(ICON, null);
     String localIconColor = prefs.getString(ICON_COLOR, null);
@@ -515,7 +520,13 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
      */
     createActions(extras, mBuilder, resources, packageName, notId);
 
-    mNotificationManager.notify(appName, notId, mBuilder.build());
+    Notification n = mBuilder.build();
+    /*
+     *  Notification insistent
+     */
+    setNotificationInsistent(extras, n);
+
+    mNotificationManager.notify(appName, notId, n);
   }
 
   private void updateIntent(Intent intent, String callback, Bundle extras, boolean foreground, int notId) {
@@ -655,6 +666,13 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
   private void setNotificationOngoing(Bundle extras, NotificationCompat.Builder mBuilder) {
     boolean ongoing = Boolean.parseBoolean(extras.getString(ONGOING, "false"));
     mBuilder.setOngoing(ongoing);
+  }
+
+  private void setNotificationInsistent(Bundle extras, Notification n) {
+    boolean insistent = Boolean.parseBoolean(extras.getString(INSISTENT, "false"));
+    if(insistent){
+      n.flags |= Notification.FLAG_INSISTENT;
+    }
   }
 
   private void setNotificationMessage(int notId, Bundle extras, NotificationCompat.Builder mBuilder) {
