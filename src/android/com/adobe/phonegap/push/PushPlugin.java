@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
@@ -97,9 +98,11 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
           channel.optString(CHANNEL_DESCRIPTION, ""),
           channel.optInt(CHANNEL_IMPORTANCE, NotificationManager.IMPORTANCE_DEFAULT));
 
-      int lightColor = channel.optInt(CHANNEL_LIGHT_COLOR, -1);
-      if (lightColor != -1) {
-        mChannel.setLightColor(lightColor);
+      String lightColor = channel.optString(CHANNEL_LIGHT_COLOR, "");
+      if (lightColor != "") {
+        int color = Color.parseColor(lightColor);
+        mChannel.setLightColor(color);
+        mChannel.enableLights(true);
       }
 
       int visibility = channel.optInt(VISIBILITY, NotificationCompat.VISIBILITY_PUBLIC);
@@ -107,6 +110,9 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
       boolean badge = channel.optBoolean(BADGE, true);
       mChannel.setShowBadge(badge);
+
+      boolean bypassdnd = channel.optBoolean(BYPASSDND, false);
+      mChannel.setBypassDnd(bypassdnd);
 
       String sound = channel.optString(SOUND, "default");
       AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -190,7 +196,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
             jo = data.getJSONObject(0).getJSONObject(ANDROID);
 
             // If no NotificationChannels exist create the default one
-            createDefaultNotificationChannelIfNeeded(jo);
+//            createDefaultNotificationChannelIfNeeded(jo);
 
             Log.v(LOG_TAG, "execute: jo=" + jo.toString());
 

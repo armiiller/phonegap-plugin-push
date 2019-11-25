@@ -424,7 +424,7 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
 //        .setDeleteIntent(deleteIntent)
 //        .setAutoCancel(true);
         ;
-    
+
     SharedPreferences prefs = context.getSharedPreferences(PushPlugin.COM_ADOBE_PHONEGAP_PUSH, Context.MODE_PRIVATE);
     String localIcon = prefs.getString(ICON, null);
     String localIconColor = prefs.getString(ICON_COLOR, null);
@@ -494,6 +494,11 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
      *  Priority Notification
      */
     setNotificationPriority(extras, mBuilder);
+
+    /*
+     *  Notification Category
+     */
+    setNotificationCategory(extras, mBuilder);
 
     /*
      * Notification message
@@ -794,6 +799,17 @@ public class FCMService extends FirebaseMessagingService implements PushConstant
           Log.e(LOG_TAG, "Priority parameter must be between -2 and 2");
         }
       } catch (NumberFormatException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private void setNotificationCategory(Bundle extras, NotificationCompat.Builder mBuilder) {
+    String categoryStr = extras.getString(CATEGORY);
+    if (categoryStr != null) {
+      try {
+        mBuilder.setCategory(categoryStr);
+      } catch (Error e) {
         e.printStackTrace();
       }
     }
